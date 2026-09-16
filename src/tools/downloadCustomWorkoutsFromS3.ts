@@ -17,9 +17,28 @@ export async function handler(
     if (!whooshId) throw new McpError(-32600, 'Not authenticated');
 
     // Get S3 URL
-    const uploadInfo = await extra.client.get(`/client/custom-workout-upload/${whooshId}`, { 
-      baseUrl: 'COACHING' 
-    }) as { data: { workoutZipUrl: string; workoutCount: number } };
+    let uploadInfo: { data: { workoutZipUrl: string; workoutCount: number } };
+    try {
+      uploadInfo = (await extra.client.get(`/client/custom-workout-upload/${whooshId}`, {
+        baseUrl: 'COACHING',
+      })) as { data: { workoutZipUrl: string; workoutCount: number } };
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      // Known MyWhoosh backend bug: any workout created via uploadCustomWorkout
+      // is persisted server-side with sportsModeType: NaN regardless of what
+      // the request sends, which breaks every subsequent read of the account's
+      // custom workouts (this endpoint included). Not fixable from this client
+      // — see https://github.com/mywhoosh-community/mywhoosh-mcp-server/issues/1
+      if (message.includes('sportsModeType')) {
+        return {
+          content: [{
+            type: 'text',
+            text: 'MyWhoosh backend error: cannot list custom workouts right now. Any workout created via uploadCustomWorkout is stored server-side with an invalid "sportsModeType: NaN", which breaks this read endpoint for the whole account. This is a known MyWhoosh backend bug, not an issue with this MCP server — see https://github.com/mywhoosh-community/mywhoosh-mcp-server/issues/1. Waiting on MyWhoosh to fix it.',
+          }],
+        };
+      }
+      throw e;
+    }
 
     if (!uploadInfo.data?.workoutZipUrl) {
       return {
