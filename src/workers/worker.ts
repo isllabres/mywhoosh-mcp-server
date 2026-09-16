@@ -31,7 +31,13 @@ const DEVICE_ID_KV_KEY = 'mywhoosh-device-id';
 async function getDeviceId(env: Env): Promise<string> {
   const existing = await env.OAUTH_KV.get(DEVICE_ID_KV_KEY);
   if (existing) return existing;
+  return rotateDeviceId(env);
+}
 
+// Mints a brand-new device identity and persists it, replacing whatever was
+// there. Used when the current one turns out to have an orphaned session
+// MyWhoosh won't release — a fresh id has no prior session to collide with.
+async function rotateDeviceId(env: Env): Promise<string> {
   const generated = crypto.randomUUID();
   await env.OAUTH_KV.put(DEVICE_ID_KV_KEY, generated);
   return generated;
@@ -46,7 +52,23 @@ async function getClient(env: Env): Promise<MyWhooshClient> {
       const deviceId = await getDeviceId(env);
       await client.login(env.MYWHOOSH_USERNAME, env.MYWHOOSH_PASSWORD, deviceId);
     } catch (error: any) {
-      console.error('Auto-login failed', error?.message ?? error);
+      const message = error?.message ?? String(error);
+      console.error('Auto-login failed', message);
+
+      // No logout endpoint exists, so an orphaned session under the current
+      // device id (a login interrupted mid-flight, concurrent isolates racing
+      // the same id, ...) would otherwise stay stuck until MyWhoosh expires
+      // it server-side, on an unknown schedule. Self-heal instead: mint a
+      // fresh device identity — which has no prior session to collide with —
+      // and retry once immediately, so callers don't have to wait it out.
+      if (typeof message === 'string' && message.toLowerCase().includes('already logged in from another device')) {
+        try {
+          const newDeviceId = await rotateDeviceId(env);
+          await client.login(env.MYWHOOSH_USERNAME, env.MYWHOOSH_PASSWORD, newDeviceId);
+        } catch (retryError: any) {
+          console.error('Auto-login retry with rotated device id failed', retryError?.message ?? retryError);
+        }
+      }
     }
   }
 
