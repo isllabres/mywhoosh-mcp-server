@@ -1,25 +1,8 @@
 {
     "mcpServers": {
       "mywhoosh-mcp-server": {
-        "command": "node",
-        "args": ["PATH_TO_PROJECT\\build\\index.js"],
-        "env": {
-          "MYWHOOSH_USERNAME": "${input:mywhoosh-username}",
-          "MYWHOOSH_PASSWORD": "${input:mywhoosh-password}"
-        }
+        "type": "http",
+        "url": "http://localhost:3000/mcp"
       }
-    },
-    "inputs": [
-      {
-        "id": "mywhoosh-username",
-        "type": "promptString",
-        "description": "Enter your MyWhoosh username"
-      },
-      {
-        "id": "mywhoosh-password",
-        "type": "promptString",
-        "description": "Enter your MyWhoosh password",
-        "password": true
-      }
-    ]
+    }
   }

@@ -54,7 +54,7 @@ export class MyWhooshClient {
       throw new McpError(ErrorCode.InvalidParams, `Login failed: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as any;
     if (!data.Success) {
       throw new McpError(ErrorCode.InvalidParams, data.Message || 'Login failed');
     }

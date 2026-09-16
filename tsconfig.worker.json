@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["@cloudflare/workers-types", "node"],
+    "noEmit": true
+  },
+  "include": ["src/workers/**/*", "src/tools/**/*", "src/clients/**/*", "src/constants.ts"],
+  "exclude": ["node_modules"]
+}

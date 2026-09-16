@@ -42,7 +42,7 @@ export async function handler(
     const workouts = [];
     for (const entry of zipEntries) {
       if (!entry.isDirectory && entry.entryName.endsWith('.json')) {
-        const content = entry.getData().toString('utf8');
+        const content = new TextDecoder('utf-8').decode(entry.getData());
         try {
           const workout = JSON.parse(content);
           workouts.push(workout);

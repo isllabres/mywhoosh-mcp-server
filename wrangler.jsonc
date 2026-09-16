@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mywhoosh-mcp-server",
+  "main": "src/workers/worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  // Bindings must be declared here (not just in the dashboard) to survive
+  // Git-triggered redeploys; only secrets (OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET,
+  // MYWHOOSH_USERNAME, MYWHOOSH_PASSWORD) live in the dashboard's encrypted
+  // Variables/Secrets UI instead, since this file is committed to the repo.
+  "kv_namespaces": [
+    { "binding": "OAUTH_KV", "id": "21575f838adf4a10b893054897c1df28" }
+  ]
+}
