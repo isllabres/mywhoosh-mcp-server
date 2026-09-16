@@ -200,7 +200,6 @@ export async function handleToken(request: Request, env: Env): Promise<Response>
       return jsonError(400, 'invalid_grant', 'Invalid or expired authorization code');
     }
     const stored = JSON.parse(raw) as StoredCode;
-    await env.OAUTH_KV.delete(`code:${code}`);
 
     if (stored.clientId !== clientId) {
       return jsonError(400, 'invalid_grant', 'Authorization code was not issued to this client');
@@ -211,9 +210,13 @@ export async function handleToken(request: Request, env: Env): Promise<Response>
 
     const expectedChallenge = await sha256Base64Url(codeVerifier);
     if (expectedChallenge !== stored.codeChallenge) {
+      // Wrong verifier: leave the code intact so a legitimate client can retry
+      // with the correct one, instead of forcing a whole new /authorize round-trip.
       return jsonError(400, 'invalid_grant', 'code_verifier does not match the challenge');
     }
 
+    // Only burn the code once it's actually been redeemed successfully.
+    await env.OAUTH_KV.delete(`code:${code}`);
     return issueTokens(env, clientId, stored.scopes, resource ?? stored.resource);
   }
 
