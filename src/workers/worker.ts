@@ -14,14 +14,16 @@ import {
 } from './kvOAuth.js';
 
 // Module-scope cache: reused across requests handled by the same warm isolate,
-// so we don't re-login to MyWhoosh on every single MCP call. A cold isolate
-// (or one that never got auto-login credentials) just logs in lazily once.
+// so we don't re-login to MyWhoosh on every single MCP call. Only skipped when
+// the cached client isn't actually authenticated yet, so a cold start before
+// credentials were configured (or a transient login failure) retries on the
+// next request instead of being stuck unauthenticated for the isolate's life.
 let cachedClient: MyWhooshClient | undefined;
 
 async function getClient(env: Env): Promise<MyWhooshClient> {
-  if (cachedClient) return cachedClient;
+  if (cachedClient?.isAuthenticated()) return cachedClient;
 
-  const client = new MyWhooshClient();
+  const client = cachedClient ?? new MyWhooshClient();
   if (env.MYWHOOSH_USERNAME && env.MYWHOOSH_PASSWORD) {
     try {
       await client.login(env.MYWHOOSH_USERNAME, env.MYWHOOSH_PASSWORD, 'mcp-worker');
