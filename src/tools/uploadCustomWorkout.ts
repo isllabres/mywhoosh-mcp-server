@@ -122,6 +122,7 @@ export async function handler(
       baseUrl: 'COACHING',
       body: JSON.stringify({
         UserId: whooshId,
+        SportsModeType: args.workouts[0]?.SportsModeType ?? 0,
         WorkoutsData: workoutsData,
       }),
     });
