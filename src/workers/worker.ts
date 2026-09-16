@@ -86,6 +86,18 @@ export default {
       return jsonResponse({ status: 'ok' });
     }
 
+    // TEMPORARY diagnostic endpoint — reveals only presence/length of secrets,
+    // never their value. Remove once the OAUTH_CLIENT_ID mismatch is found.
+    if (url.pathname === '/debug-env' && request.method === 'GET') {
+      return jsonResponse({
+        hasClientId: typeof env.OAUTH_CLIENT_ID === 'string',
+        clientIdLength: env.OAUTH_CLIENT_ID?.length ?? 0,
+        hasClientSecret: typeof env.OAUTH_CLIENT_SECRET === 'string',
+        clientSecretLength: env.OAUTH_CLIENT_SECRET?.length ?? 0,
+        hasKv: !!env.OAUTH_KV,
+      });
+    }
+
     if (url.pathname === '/.well-known/oauth-authorization-server' && request.method === 'GET') {
       return jsonResponse(buildAuthorizationServerMetadata(issuer));
     }
