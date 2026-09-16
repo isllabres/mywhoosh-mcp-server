@@ -29,6 +29,7 @@ const workoutSchema = z.object({
   Name: z.string().describe('Workout name'),
   Description: z.string().default('').describe('Workout description'),
   Mode: z.string().default('E_Ride').describe('Workout mode (use E_Ride for cycling)'),
+  SportsModeType: z.number().min(0).max(3).default(0).describe('MyWhoosh sport mode: 0 = cycling, 1-3 = other sports (rowing/running/etc, per account)'),
   ERGMode: z.string().default('E_OFF').describe('ERG mode setting'),
   IsRecovery: z.boolean().default(false).describe('Is this a recovery workout?'),
   IsIntervals: z.boolean().default(false).describe('Does this workout contain intervals?'),
