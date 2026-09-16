@@ -20,13 +20,31 @@ import {
 // next request instead of being stuck unauthenticated for the isolate's life.
 let cachedClient: MyWhooshClient | undefined;
 
+const DEVICE_ID_KV_KEY = 'mywhoosh-device-id';
+
+// MyWhoosh ties sessions to the DeviceId sent at login and rejects a new
+// login with "already logged in from another device" if that device's prior
+// session is still open server-side — which we never explicitly close
+// (there's no logout call). A fixed hardcoded id would collide with itself
+// across isolate restarts, so we persist one real device identity in KV
+// (created once, reused forever) instead of colliding under a shared literal.
+async function getDeviceId(env: Env): Promise<string> {
+  const existing = await env.OAUTH_KV.get(DEVICE_ID_KV_KEY);
+  if (existing) return existing;
+
+  const generated = crypto.randomUUID();
+  await env.OAUTH_KV.put(DEVICE_ID_KV_KEY, generated);
+  return generated;
+}
+
 async function getClient(env: Env): Promise<MyWhooshClient> {
   if (cachedClient?.isAuthenticated()) return cachedClient;
 
   const client = cachedClient ?? new MyWhooshClient();
   if (env.MYWHOOSH_USERNAME && env.MYWHOOSH_PASSWORD) {
     try {
-      await client.login(env.MYWHOOSH_USERNAME, env.MYWHOOSH_PASSWORD, 'mcp-worker');
+      const deviceId = await getDeviceId(env);
+      await client.login(env.MYWHOOSH_USERNAME, env.MYWHOOSH_PASSWORD, deviceId);
     } catch (error: any) {
       console.error('Auto-login failed', error?.message ?? error);
     }
