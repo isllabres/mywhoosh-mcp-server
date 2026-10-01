@@ -129,7 +129,7 @@ A custom domain can be attached under the Worker's Settings → Domains & Routes
 |---|---|---|
 | `uploadCustomWorkout` | Upload or update custom cycling workouts. Re-uploading an existing `Id` updates that workout. | `workouts` |
 | `deleteCustomWorkout` | Delete a custom workout. | `workoutId` |
-| `downloadCustomWorkoutsFromS3` | Download and extract all custom workouts from the MyWhoosh S3 bucket as parsed JSON. See [Known issues](#known-issues). | none |
+| `downloadCustomWorkoutsFromS3` | Download and extract all custom workouts from the MyWhoosh S3 bucket as parsed JSON. Currently fails for the whole account because of [#1](https://github.com/isllabres/mywhoosh-mcp-server/issues/1). | none |
 | `getCustomWorkoutUpload` | Get the pre-signed S3 URL used to download custom workouts. | none |
 | `downloadFavoriteWorkouts` | Download the player's favorite workouts. | none |
 | `downloadCalendarWorkouts` | Download the player's calendar workouts. | none |
@@ -210,36 +210,7 @@ After installation, you can use the MCP server directly in your AI provider. Exa
 - "Schedule that workout for tomorrow at 6:30"
 - "What's my current FTP and my distance over the last 30 days?"
 
-## Known issues
-
-### Workouts uploaded through the API are stored with `sportsModeType: NaN`
-
-Every workout created with `uploadCustomWorkout` is persisted by MyWhoosh's backend with `sportsModeType: NaN`, whatever the request contains. Fifteen request shapes were tried (different field names and casings, numeric and string values, the shape of the official workout files, `SportsModeType` 0 to 3) and all of them end up as `NaN`. `SportsModeType` itself is still mandatory: omitting it returns a 400 from MyWhoosh.
-
-Consequences:
-
-- `downloadCustomWorkoutsFromS3` (and `getCustomWorkoutUpload`, which calls the same endpoint) fail for the whole account while any such workout exists. This server turns the raw `500 CastError` into a clear message saying it is a known MyWhoosh bug.
-- `deleteCustomWorkout` fails with the same error on those workouts, so **they can only be deleted manually from the MyWhoosh app** (My Workouts).
-- The workouts themselves are listed and playable in the app, and they can still be scheduled with `createTask`.
-
-Tracked in [isllabres/mywhoosh-mcp-server#1](https://github.com/isllabres/mywhoosh-mcp-server/issues/1), which includes the full experiment table, and in the upstream report [mywhoosh-community/mywhoosh-mcp-server#1](https://github.com/mywhoosh-community/mywhoosh-mcp-server/issues/1). Waiting for MyWhoosh to fix it on their side.
-
-### `You don't have enough credit!`
-
-When MyWhoosh refuses an upload with `{"message": "You don't have enough credit!", "status": false}`, `uploadCustomWorkout` returns an error result stating that the workout was **not** uploaded and asking the user to delete custom workouts manually in the MyWhoosh app before retrying. The API cannot do that cleanup itself because of the issue above.
-
-### `You are already logged in from another device`
-
-MyWhoosh allows a single active session per account and has no logout endpoint we know of. If a session stays open (a login that timed out halfway, concurrent logins, or the app/web still signed in), further logins are rejected with this message and every tool answers `Not authenticated`. Observed behaviour:
-
-- Closing the app or the website does not necessarily release the session, and the session was seen to stay blocked for hours before expiring on its own. The expiry time is not documented.
-- Using a different `DeviceId` does not help: a brand-new one is rejected too.
-- Login can also fail transiently with `504` from MyWhoosh's side.
-- Avoid firing many requests in parallel right after a failure. On the Cloudflare Worker the login is retried on the next request, and the reason is logged as `Auto-login failed ...` (Worker → Observability).
-
-### Messages that are not errors
-
-`downloadFavoriteWorkouts` and `downloadCalendarWorkouts` answer `"... file not found."` when the account has no favorites or no calendar workouts yet.
+Known problems are tracked as [GitHub issues](https://github.com/isllabres/mywhoosh-mcp-server/issues).
 
 ## License
 
