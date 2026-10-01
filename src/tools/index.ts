@@ -2,6 +2,7 @@ import type { ToolModule } from './types.js';
 
 import * as createTask from './createTask.js';
 import * as deleteCustomWorkout from './deleteCustomWorkout.js';
+import * as debugUploadRaw from './debugUploadRaw.js';
 import * as deleteTask from './deleteTask.js';
 import * as downloadCalendarWorkouts from './downloadCalendarWorkouts.js';
 import * as downloadCustomWorkoutsFromS3 from './downloadCustomWorkoutsFromS3.js';
@@ -51,6 +52,7 @@ import * as uploadCustomWorkout from './uploadCustomWorkout.js';
 export const tools: ToolModule[] = [
   createTask,
   deleteCustomWorkout,
+  debugUploadRaw,
   deleteTask,
   downloadCalendarWorkouts,
   downloadCustomWorkoutsFromS3,
