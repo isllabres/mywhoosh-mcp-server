@@ -95,19 +95,151 @@ Since this server disables dynamic client registration, a client that can't be g
 1. **Create the KV namespace.** Dashboard → Storage & Databases → KV → Create. Name it e.g. `mywhoosh-oauth`. Copy its namespace ID.
 2. **Put the ID in `wrangler.jsonc`.** Replace `REPLACE_WITH_KV_NAMESPACE_ID` in the committed `wrangler.jsonc` with that ID, commit, and push. This has to live in the repo (not just the dashboard) so it survives future Git-triggered redeploys.
 3. **Connect the repo.** Dashboard → Workers & Pages → Create → Import a repository (Workers Builds) → pick this repo/branch. Cloudflare reads `wrangler.jsonc` and deploys `src/workers/worker.ts`.
-4. **Add secrets.** On the Worker's page → Settings → Variables and Secrets → add as *encrypted* variables: `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`, and optionally `MYWHOOSH_USERNAME`/`MYWHOOSH_PASSWORD` for auto-login. These live outside the repo, unlike the KV id.
+4. **Add secrets.** On the Worker's page → Settings → **Runtime variables and secrets** → Add variable, as *Secret*: `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`, and optionally `MYWHOOSH_USERNAME`/`MYWHOOSH_PASSWORD` for auto-login. These live outside the repo, unlike the KV id. Don't use the separate "Variables and Secrets" section: values saved there did not reach the Worker at runtime in our setup, and `/authorize` failed with `Unknown client_id`.
 5. **Redeploy** (Settings changes generally trigger one automatically; otherwise trigger a deployment from the dashboard).
 6. **Verify** `https://<your-worker>.workers.dev/healthz` returns `{"status":"ok"}`, then add the connector in Claude as described above using `https://<your-worker>.workers.dev/mcp`.
 
 A custom domain can be attached under the Worker's Settings → Domains & Routes, if you don't want the `*.workers.dev` URL.
 
+## Features
+
+- **Custom workouts**: upload, update and delete structured power workouts (ramps, steady blocks, intervals, free-ride steps with messages).
+- **Calendar**: schedule workouts, events and free rides on your MyWhoosh calendar, list what is scheduled in a date range, and delete tasks.
+- **Player data**: profile, FTP, achievements, trophies and jerseys, distance statistics, friends, ghost rides, season pass and mission progress.
+- **Game data**: events, routes, leaderboards, shop and garage items, coaches, group workouts, bots and server status.
+- **Account**: log in, register an account, redeem coupons and update the player profile.
+- **Remote by design**: Streamable HTTP transport protected by its own OAuth 2.1 server, runnable on Node or as a Cloudflare Worker, with optional automatic MyWhoosh login from environment secrets.
+
+## Available tools
+
+47 tools. All of them need an authenticated MyWhoosh session (see `MYWHOOSH_USERNAME`/`MYWHOOSH_PASSWORD`, or call `login`) except `login`, `registerUser`, `getMaintenanceStatus` and `getEnvironmentByAppVersion`. Parameters marked with `?` are optional.
+
+### Account
+
+| Tool | Description | Parameters |
+|---|---|---|
+| `login` | Authenticate with MyWhoosh and get access tokens. | `username`, `password`, `deviceId?` |
+| `registerUser` | Register a new MyWhoosh user account. | `firstName`, `lastName`, `email`, `password`, `dobDay`, `dobMonth`, `dobYear`, `country?`, `height`, `weight`, `gender`, `ftp?`, `allowMarketingEmails?` |
+| `redeemCoupon` | Redeem a coupon code for coins or gems. | `couponCode` |
+| `updatePlayerData` | Update player profile data (equipment, settings, etc.). | `playerData` |
+
+### Custom workouts
+
+| Tool | Description | Parameters |
+|---|---|---|
+| `uploadCustomWorkout` | Upload or update custom cycling workouts. Re-uploading an existing `Id` updates that workout. | `workouts` |
+| `deleteCustomWorkout` | Delete a custom workout. | `workoutId` |
+| `downloadCustomWorkoutsFromS3` | Download and extract all custom workouts from the MyWhoosh S3 bucket as parsed JSON. See [Known issues](#known-issues). | none |
+| `getCustomWorkoutUpload` | Get the pre-signed S3 URL used to download custom workouts. | none |
+| `downloadFavoriteWorkouts` | Download the player's favorite workouts. | none |
+| `downloadCalendarWorkouts` | Download the player's calendar workouts. | none |
+| `getGroupWorkouts` | Get the list of available group workouts. | none |
+| `getVOD` | Get video-on-demand content for workouts. | none |
+
+### Calendar tasks
+
+| Tool | Description | Parameters |
+|---|---|---|
+| `createTask` | Create a calendar task to schedule an event, a workout or a free ride. | `taskType`, `taskStartedTimeEpoc`, `taskTypeId`, `taskName`, `taskEndEpochTime?`, `curDayId?`, `taskDescription?`, `totalKilometers?`, `totalElevation?`, `tss?`, `sportMode?`, `mapId?`, `dayNo?` |
+| `deleteTask` | Delete a calendar task. | `taskId` |
+| `getDateRangeTaskList` | Get calendar tasks within a date range. | `startDate`, `endDate` (Unix timestamps) |
+
+### Player
+
+| Tool | Description | Parameters |
+|---|---|---|
+| `getPlayerData` | Player profile, stats, equipment and settings. | none |
+| `getPlayerAchievements` | Achievement progress and completed achievements. | none |
+| `getPlayerDistance` | Distance statistics for a number of days. | `days?` |
+| `getPlayerGhostRideData` | Ghost ride data for replaying past rides. | none |
+| `getPlayerTrophiesJerseys` | Trophies and earned jerseys. | none |
+| `getMyFriends` | Friends and online friends. | none |
+| `getFitnessNetwork` | Connected fitness networks (Strava, Garmin, etc.). | none |
+| `getPendingRide` | Pending ride data for recovery. | none |
+| `getSeasonPassProgress` | Season pass progress for a season. | `seasonId` |
+| `getMissionProgress` | Mission challenge progress. | none |
+
+### Events, routes and leaderboards
+
+| Tool | Description | Parameters |
+|---|---|---|
+| `getEvents` | Upcoming and current events. | `sportsMode?` |
+| `getRoutes` | All free-ride routes, organized by world. | none |
+| `getJunctionInfo` | Junction/route information for all routes. | none |
+| `getWorldRoutePlayerCount` | Current player and bot counts per world and route. | none |
+| `getAllPlayerLeaderboards` | Arcade leaderboards (Easy, Medium, Hard). | none |
+| `getArcadeLeaderboard` | Arcade mode leaderboard. | none |
+| `getTreasureHunt` | Treasure hunt gate information. | none |
+| `getChallenges` | All available challenges and achievements. | none |
+| `getMissions` | Available missions and challenges. | none |
+
+### Game configuration and server
+
+| Tool | Description | Parameters |
+|---|---|---|
+| `getGameTitleData` | Game configuration: worlds, version info and settings. | none |
+| `getAgeConfig` | Age-based feature access configuration. | none |
+| `getCalculations` | XP and coin reward calculations and level progression. | `currentLevel?` |
+| `getBundleInfo` | Shop bundle information (coins and gems packages). | none |
+| `getGarageItems` | Garage/shop items metadata (bikes, equipment, etc.). | none |
+| `getControllableBots` | Controllable companion bot configurations. | none |
+| `getPacerBot` | Pacer bot configurations for group rides. | none |
+| `getDraftingPeloton` | Drafting peloton configuration with wind effect quadrants. | none |
+| `getCoaches` | Available coaches. | none |
+| `getConnectappHost` | Connect app host information for the player. | none |
+| `getEnvironmentByAppVersion` | Environment type (PROD/DEV) for an app version. No session needed. | `appVersion?`, `platform?`, `buildVersion?` |
+| `getMaintenanceStatus` | Maintenance status and notifications. No session needed. | none |
+| `getServerTime` | Current server time as a Unix timestamp. | none |
+
+### Working with workouts
+
+- **Power values** are fractions of your FTP, not watts: `0.55` is 55% FTP, `1.2` is 120% FTP. For a 270 W FTP, 200 W is `0.7407`.
+- **Time** is always in seconds, both per step and for the whole workout (`Time` must be the sum of the steps).
+- **Step types**: `E_Normal` (steady power), `E_WarmUp` and `E_CoolDown` (ramps from `StartPower` to `EndPower`, with `Power` set to 0) and `E_FreeRide` (optionally with on-screen messages).
+- **Intervals**: give the steps of one block the same `IntervalId`; `0` means the step is not part of an interval.
+- **Create vs update**: use a new unique `Id` (a timestamp works) to create, or the existing `Id` to update.
+- **Scheduling**: upload the workout, then call `createTask` with `taskType: "E_Simple_Workout"` and the workout `Id` as `taskTypeId`. Start and end times are Unix timestamps in seconds.
+- **`SportsModeType`** is mandatory for MyWhoosh but handled for you: it is sent as `0` (cycling).
+
 ## Usage
 
 After installation, you can use the MCP server directly in your AI provider. Examples:
 
-- "Create a 30-minute interval workout"
-- "Show me my scheduled training sessions"
-- "Change my MyWhoosh settings"
+- "Create a 42-minute workout at 200 W with five 90-second intervals at 400 W in the middle"
+- "Show me my scheduled training sessions for this week"
+- "Schedule that workout for tomorrow at 6:30"
+- "What's my current FTP and my distance over the last 30 days?"
+
+## Known issues
+
+### Workouts uploaded through the API are stored with `sportsModeType: NaN`
+
+Every workout created with `uploadCustomWorkout` is persisted by MyWhoosh's backend with `sportsModeType: NaN`, whatever the request contains. Fifteen request shapes were tried (different field names and casings, numeric and string values, the shape of the official workout files, `SportsModeType` 0 to 3) and all of them end up as `NaN`. `SportsModeType` itself is still mandatory: omitting it returns a 400 from MyWhoosh.
+
+Consequences:
+
+- `downloadCustomWorkoutsFromS3` (and `getCustomWorkoutUpload`, which calls the same endpoint) fail for the whole account while any such workout exists. This server turns the raw `500 CastError` into a clear message saying it is a known MyWhoosh bug.
+- `deleteCustomWorkout` fails with the same error on those workouts, so **they can only be deleted manually from the MyWhoosh app** (My Workouts).
+- The workouts themselves are listed and playable in the app, and they can still be scheduled with `createTask`.
+
+Tracked in [isllabres/mywhoosh-mcp-server#1](https://github.com/isllabres/mywhoosh-mcp-server/issues/1), which includes the full experiment table, and in the upstream report [mywhoosh-community/mywhoosh-mcp-server#1](https://github.com/mywhoosh-community/mywhoosh-mcp-server/issues/1). Waiting for MyWhoosh to fix it on their side.
+
+### `You don't have enough credit!`
+
+When MyWhoosh refuses an upload with `{"message": "You don't have enough credit!", "status": false}`, `uploadCustomWorkout` returns an error result stating that the workout was **not** uploaded and asking the user to delete custom workouts manually in the MyWhoosh app before retrying. The API cannot do that cleanup itself because of the issue above.
+
+### `You are already logged in from another device`
+
+MyWhoosh allows a single active session per account and has no logout endpoint we know of. If a session stays open (a login that timed out halfway, concurrent logins, or the app/web still signed in), further logins are rejected with this message and every tool answers `Not authenticated`. Observed behaviour:
+
+- Closing the app or the website does not necessarily release the session, and the session was seen to stay blocked for hours before expiring on its own. The expiry time is not documented.
+- Using a different `DeviceId` does not help: a brand-new one is rejected too.
+- Login can also fail transiently with `504` from MyWhoosh's side.
+- Avoid firing many requests in parallel right after a failure. On the Cloudflare Worker the login is retried on the next request, and the reason is logged as `Auto-login failed ...` (Worker → Observability).
+
+### Messages that are not errors
+
+`downloadFavoriteWorkouts` and `downloadCalendarWorkouts` answer `"... file not found."` when the account has no favorites or no calendar workouts yet.
 
 ## License
 
