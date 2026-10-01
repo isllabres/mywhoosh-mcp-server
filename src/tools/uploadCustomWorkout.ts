@@ -127,11 +127,31 @@ export async function handler(
       }),
     });
 
+    if (result && typeof result === 'object' && result.status === false && NO_CREDIT_PATTERN.test(String(result.message))) {
+      return noCreditResult();
+    }
+
     return {
       content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
     };
   } catch (e) {
+    if (e instanceof Error && NO_CREDIT_PATTERN.test(e.message)) return noCreditResult();
     if (e instanceof McpError) throw e;
     throw asMcpError(e);
   }
+}
+
+// MyWhoosh answers {"message":"You don't have enough credit!","status":false} when the account
+// can't take more custom workouts. We can't free the space ourselves: the API can't delete the
+// workouts it stored with sportsModeType NaN (see issue #1), so the user has to do it in the app.
+const NO_CREDIT_PATTERN = /enough credit/i;
+
+function noCreditResult(): CallToolResult {
+  return {
+    isError: true,
+    content: [{
+      type: 'text',
+      text: 'The workout was NOT uploaded: MyWhoosh refused it with "You don\'t have enough credit!". Ask the user to delete some custom workouts manually in the MyWhoosh app (the API cannot delete the ones previously uploaded through it, see https://github.com/mywhoosh-community/mywhoosh-mcp-server/issues/1), then retry the upload.',
+    }],
+  };
 }
