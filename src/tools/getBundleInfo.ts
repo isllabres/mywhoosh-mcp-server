@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getBundleInfo';
-export const description = 'Get shop bundle information (coins, gems packages).';
+export const description = `Shop bundles for buying coins and gems: MyWhooshShopBundlesData with BundleName, Price, Platform, Type (coins or gems) and Reward. Read-only catalogue, it does not buy anything.`;
 export const parameters = z.object({});
 
 export async function handler(

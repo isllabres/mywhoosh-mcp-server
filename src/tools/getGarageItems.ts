@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getGarageItems';
-export const description = 'Get garage/shop items metadata (bikes, equipment, etc.).';
+export const description = `Metadata of garage and shop items (bikes, equipment, cosmetics): MyWhooshShopItemsMetaData with Id, Type, unlock rules and currency, mostly ids rather than names. Match the Ids against the player's equipment from getPlayerData.`;
 export const parameters = z.object({});
 
 export async function handler(

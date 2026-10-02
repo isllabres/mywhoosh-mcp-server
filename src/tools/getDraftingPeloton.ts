@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getDraftingPeloton';
-export const description = 'Get drafting peloton configuration with wind effect quadrants.';
+export const description = `Drafting model used in group rides: WindEffectQuadrants with the drag percentage by position in the bunch. Pure reference data.`;
 export const parameters = z.object({});
 
 export async function handler(

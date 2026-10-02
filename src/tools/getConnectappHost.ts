@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getConnectappHost';
-export const description = 'Get connect app host information for the player.';
+export const description = `Connect app host information for the logged-in player. Rarely needed.`;
 export const parameters = z.object({});
 
 export async function handler(

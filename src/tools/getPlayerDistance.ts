@@ -4,9 +4,9 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getPlayerDistance';
-export const description = 'Get player distance statistics for a number of days.';
+export const description = `Distance statistics for the last N days (days, default 7). Returns DayBasedStats with the per-day data. Only covers rides done in MyWhoosh.`;
 export const parameters = z.object({
-  days: z.number().default(7).describe('Number of days to get stats for'),
+  days: z.number().default(7).describe('How many past days to include (default 7)'),
 });
 
 export async function handler(

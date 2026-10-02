@@ -4,9 +4,9 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getCalculations';
-export const description = 'Get XP and coin reward calculations and level progression data.';
+export const description = `XP and coin reward tables: XpLevelUpData rows with UserLevel, TotalXPRequired, XPRequiredPerLevel and LevelUpCoinsReward. currentLevel (default 1) is sent as the CurrentLevel parameter.`;
 export const parameters = z.object({
-  currentLevel: z.number().optional().default(1).describe('Current player level'),
+  currentLevel: z.number().optional().default(1).describe('Player level sent as CurrentLevel (default 1). The response is the whole level-up table either way.'),
 });
 
 export async function handler(

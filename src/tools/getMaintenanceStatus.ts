@@ -5,7 +5,7 @@ import { asMcpError, McpError } from './utils/toolHelpers.js';
 import { MyWhooshClient } from '../clients/mywhoosh.js';
 
 export const method = 'getMaintenanceStatus';
-export const description = 'Get maintenance status and notifications. Does not require authentication.';
+export const description = `Whether MyWhoosh is under maintenance: ListOfNotifications (empty when everything is normal) and ServerTime in milliseconds. Needs no session, so it is the cheapest way to check that MyWhoosh is reachable.`;
 export const parameters = z.object({});
 
 export async function handler(

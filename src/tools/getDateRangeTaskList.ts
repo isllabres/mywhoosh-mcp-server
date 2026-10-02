@@ -4,10 +4,10 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getDateRangeTaskList';
-export const description = 'Get calendar tasks within a date range.';
+export const description = `List what is scheduled on the user's MyWhoosh calendar between two dates. Returns {status, data: {startDate, endDate, taskList: [...]}}; an empty taskList means nothing is scheduled. Dates are Unix timestamps in seconds: use the start of the first day and the end of the last day. Use it to confirm that createTask worked or to find a TaskId.`;
 export const parameters = z.object({
-  startDate: z.number().describe('Start date as Unix timestamp'),
-  endDate: z.number().describe('End date as Unix timestamp'),
+  startDate: z.number().describe('Start of the range as a Unix timestamp in seconds, e.g. midnight of the first day'),
+  endDate: z.number().describe('End of the range as a Unix timestamp in seconds, e.g. the end of the last day'),
 });
 
 export async function handler(

@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getPendingRide';
-export const description = 'Get pending ride data for recovery.';
+export const description = `Check whether a ride was interrupted and can be recovered (MyWhoosh data-recovery service). Returns the pending ride data when one exists.`;
 export const parameters = z.object({});
 
 export async function handler(

@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getTreasureHunt';
-export const description = 'Get treasure hunt gate information.';
+export const description = `Treasure hunt gates (TreasureHuntGateList); empty when no hunt is running.`;
 export const parameters = z.object({});
 
 export async function handler(

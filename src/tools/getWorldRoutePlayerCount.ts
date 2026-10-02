@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getWorldRoutePlayerCount';
-export const description = 'Get current player and bot counts per world and route.';
+export const description = `Live snapshot of activity in MyWhoosh: overall counters (workoutsCount, bunchRideCount, ...) and, per world and route, playersCount and botsCount.`;
 export const parameters = z.object({});
 
 export async function handler(

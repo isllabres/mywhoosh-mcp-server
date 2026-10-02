@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getPlayerData';
-export const description = 'Get player profile data including stats, equipment, and settings.';
+export const description = `Get the logged-in player's full profile: PlayerDataStruct (name, birth date, height, weight, level, XP, coins, FTP in PlayerPersonalStruct.FtpPlayer, best power values, total distance and ride time, avatar and equipment) and PlayerGameData (units, volume and other settings). Call it first when you need the user's FTP, to turn watts into the FTP fractions workouts use, or as the starting point for updatePlayerData. It includes personal data (name, email, birth date): do not repeat it unnecessarily.`;
 export const parameters = z.object({});
 
 export async function handler(

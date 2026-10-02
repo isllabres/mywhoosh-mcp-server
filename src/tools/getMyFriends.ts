@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getMyFriends';
-export const description = 'Get list of friends and online friends.';
+export const description = `The player's friends: {MyTotalFriends, ListOfOnlineFriends} with the number of friends and which of them are online right now.`;
 export const parameters = z.object({});
 
 export async function handler(

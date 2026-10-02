@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getFitnessNetwork';
-export const description = 'Get connected fitness networks (Strava, Garmin, etc.).';
+export const description = `Third-party fitness services linked to the account (Strava, Garmin, ...): JoinedFitnessNetwork, empty when none is linked.`;
 export const parameters = z.object({});
 
 export async function handler(

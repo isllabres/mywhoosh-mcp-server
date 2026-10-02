@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getPlayerGhostRideData';
-export const description = 'Get player ghost ride data for replaying past rides.';
+export const description = `Recorded ghost rides the player can race against again: UploadedGhostRideInfo (empty when there are none).`;
 export const parameters = z.object({});
 
 export async function handler(

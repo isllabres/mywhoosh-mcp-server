@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getGroupWorkouts';
-export const description = 'Get list of available group workouts.';
+export const description = `List the group workouts MyWhoosh currently offers (structured sessions that riders join together on a route). Returns ListOfWorkoutData; each entry has WorkoutEventId, WorkoutName, RouteId and RouteName, among other fields. Times are requested with a fixed +01:00 zone offset.`;
 export const parameters = z.object({});
 
 export async function handler(

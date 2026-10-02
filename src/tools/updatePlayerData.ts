@@ -4,9 +4,12 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'updatePlayerData';
-export const description = 'Update player profile data (equipment, settings, etc.).';
+export const description = `Overwrite the logged-in player's profile and game settings (avatar equipment, units, volume, ...). This is a write that replaces the stored profile, so only use it when the user asks for a profile change.
+
+Workflow: call getPlayerData first, change only the fields the user asked for in the structure it returns (PlayerDataStruct and PlayerGameData) and send the WHOLE structure back as a JSON string in playerData. MyWhoosh expects the complete structure, not a partial patch.
+Returns MyWhoosh's response.`;
 export const parameters = z.object({
-  playerData: z.string().describe('Stringified JSON of player data structure'),
+  playerData: z.string().describe('The COMPLETE player data structure from getPlayerData as a JSON string, with only the requested fields changed'),
 });
 
 export async function handler(

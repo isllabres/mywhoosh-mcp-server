@@ -5,7 +5,7 @@ import { asMcpError, McpError } from './utils/toolHelpers.js';
 import { MyWhooshClient } from '../clients/mywhoosh.js';
 
 export const method = 'getEnvironmentByAppVersion';
-export const description = 'Get environment type (PROD/DEV) based on app version.';
+export const description = `Tells whether an app version and build points at the production or the development environment (PROD or DEV). Defaults: appVersion 5.5.0, platform Android, buildVersion 150. Needs no session.`;
 export const parameters = z.object({
   appVersion: z.string().default('5.5.0').describe('App version (e.g., "5.5.0")'),
   platform: z.string().default('Android').describe('Platform (e.g., "Android")'),

@@ -5,7 +5,9 @@ import { asMcpError, McpError } from './utils/toolHelpers.js';
 import AdmZip from 'adm-zip';
 
 export const method = 'downloadCustomWorkoutsFromS3';
-export const description = 'Download and extract all custom workouts from MyWhoosh S3 bucket. Returns the workout data as parsed JSON objects.';
+export const description = `List the user's custom workouts with their full definition (steps, power targets, intervals): downloads the account's workout ZIP from MyWhoosh storage and returns {workouts: [...parsed JSON...], count, totalCount}. Use it to check which workouts exist before creating a duplicate, or to read one before updating it with uploadCustomWorkout.
+
+Known problem: while the account holds any workout uploaded through the API, MyWhoosh fails this call (sportsModeType NaN, GitHub issue #1). The tool then returns a plain-text explanation instead of the list. Treat that as "cannot verify what exists", NOT as "there are no workouts", and carry on.`;
 export const parameters = z.object({});
 
 export async function handler(

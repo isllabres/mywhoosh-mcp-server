@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getControllableBots';
-export const description = 'Get controllable companion bot configurations (Smasher, Climber, Attacker, etc.).';
+export const description = `Companion bot profiles (Smasher, Climber, Attacker, ...) and how they ride: MyWhooshCCBotsArray with CCBotName, idle, normal and recovery power values and attack and sprint durations.`;
 export const parameters = z.object({});
 
 export async function handler(

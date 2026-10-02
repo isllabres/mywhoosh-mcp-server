@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getGameTitleData';
-export const description = 'Get game configuration including worlds, version info, and settings.';
+export const description = `Game configuration: current and minimum app version, worlds, drafting factors and tuning constants. Reference data only. The response may contain integration keys of the app: do not repeat or forward them.`;
 export const parameters = z.object({});
 
 export async function handler(

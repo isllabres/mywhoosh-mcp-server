@@ -4,30 +4,18 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'createTask';
-export const description = `Create a calendar task to schedule events, workouts, or free rides.
+export const description = `Schedule something on the user's MyWhoosh calendar; it then shows in the app for that day. Returns {status, data: {TaskId, ...}}: keep the TaskId, deleteTask needs it.
 
-TASK TYPES:
-- E_Event: Schedule a group event (use event UUID as taskTypeId)
-- E_Simple_Workout: Schedule any workout (custom or standard, use workout ID as taskTypeId)
-- E_FreeRide: Schedule a free ride session
+taskType:
+- E_Simple_Workout: a workout, custom or built-in. taskTypeId = the workout Id (for a custom workout, the Id used in uploadCustomWorkout, as a string).
+- E_Event: a group event. taskTypeId = the EventId from getEvents.
+- E_FreeRide: a free ride session.
 
-SCHEDULING WORKOUTS:
-- Use TaskType: "E_Simple_Workout" (for both custom and standard workouts)
-- Set TaskTypeId to the workout ID (from uploadCustomWorkout or standard workout ID)
-- TaskStartedTimeEpoc: Unix timestamp when workout should start
-- TaskEndEpochTime: Unix timestamp when workout should end (start + duration)
-- Include workout details like Name, Description, TSS
+Times are Unix timestamps in SECONDS: taskStartedTimeEpoc is the start and taskEndEpochTime is start + workout duration (it defaults to the start). Convert the user's local time to epoch yourself.
+Optional: taskName, taskDescription, tss (planned Training Stress Score, 0 if unknown), sportMode (E_Cycling by default), totalKilometers and totalElevation (0 for workouts), mapId (0 for workouts), curDayId and dayNo (multi-day events only).
+Check getDateRangeTaskList first when the day may already have a task, to avoid duplicates.
 
-EXAMPLE - Schedule Workout:
-{
-  "taskType": "E_Simple_Workout",
-  "taskStartedTimeEpoc": 1735200000,
-  "taskTypeId": "176540733485",
-  "taskName": "Interval Power Builder",
-  "taskDescription": "Intensive interval training",
-  "tss": 65
-}`;
-
+Example: {"taskType": "E_Simple_Workout", "taskStartedTimeEpoc": 1735200000, "taskEndEpochTime": 1735202700, "taskTypeId": "176540733485", "taskName": "Interval Power Builder", "taskDescription": "Intensive interval training", "tss": 65}`;
 export const parameters = z.object({
   taskType: z.enum(['E_Event', 'E_Simple_Workout', 'E_FreeRide']).describe('Type of task: E_Event (group event), E_Simple_Workout (any workout - custom or standard), E_FreeRide (free ride)'),
   taskStartedTimeEpoc: z.number().describe('Start time as Unix timestamp (seconds since 1970-01-01)'),

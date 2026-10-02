@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getPlayerTrophiesJerseys';
-export const description = 'Get player trophies and earned jerseys.';
+export const description = `Trophies, jerseys and event completion rewards the player has earned: {jerseys, eventCompletionRewards, trophies, userId}.`;
 export const parameters = z.object({});
 
 export async function handler(

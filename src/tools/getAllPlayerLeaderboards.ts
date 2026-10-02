@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getAllPlayerLeaderboards';
-export const description = 'Get all player arcade leaderboards (Easy, Medium, Hard).';
+export const description = `Arcade mode leaderboards of the logged-in player, per difficulty: {Easy, Medium, Hard}. A list is empty when the player has no entries there.`;
 export const parameters = z.object({});
 
 export async function handler(

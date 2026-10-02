@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getJunctionInfo';
-export const description = 'Get junction/route information for all available routes.';
+export const description = `Lookup list of every route as {RouteId, Name} (300+ entries). Use it to turn a RouteId from other tools into a route name.`;
 export const parameters = z.object({});
 
 export async function handler(

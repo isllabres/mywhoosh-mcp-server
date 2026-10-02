@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getCustomWorkoutUpload';
-export const description = 'Get S3 URL for downloading custom workouts.';
+export const description = `Low-level: returns the metadata of the user's custom workout ZIP, {data: {userId, workoutZipUrl, workoutCount}}. workoutZipUrl is a pre-signed storage link that expires after about 10 minutes. You usually want downloadCustomWorkoutsFromS3, which downloads and parses it. It fails with the same sportsModeType error described there (GitHub issue #1).`;
 export const parameters = z.object({});
 
 export async function handler(

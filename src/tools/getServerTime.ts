@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getServerTime';
-export const description = 'Get current server time as Unix timestamp.';
+export const description = `Current MyWhoosh server time as a Unix timestamp in MILLISECONDS (a bare number such as 1789547264728). Divide by 1000 for seconds, the unit createTask and getDateRangeTaskList use.`;
 export const parameters = z.object({});
 
 export async function handler(

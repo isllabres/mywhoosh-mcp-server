@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getPlayerAchievements';
-export const description = 'Get player achievement progress and completed achievements.';
+export const description = `Progress for every achievement of the player: achievementProgressArr entries with achievementId (such as Ach_RideAccumulative_1), achievementProgress, isComplete and isRewardCompleted. Combine with getChallenges to get the name and description behind each achievementId.`;
 export const parameters = z.object({});
 
 export async function handler(

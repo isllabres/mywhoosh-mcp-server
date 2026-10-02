@@ -30,9 +30,9 @@ const workoutSchema = z.object({
   Description: z.string().default('').describe('Workout description'),
   Mode: z.string().default('E_Ride').describe('Workout mode (use E_Ride for cycling)'),
   SportsModeType: z.number().min(0).max(3).default(0).describe('MyWhoosh sport mode: 0 = cycling, 1-3 = other sports (rowing/running/etc, per account)'),
-  ERGMode: z.string().default('E_OFF').describe('ERG mode setting'),
+  ERGMode: z.string().default('E_OFF').describe('E_ON = ERG on (the trainer holds the target watts), E_OFF = ERG off (default)'),
   IsRecovery: z.boolean().default(false).describe('Is this a recovery workout?'),
-  IsIntervals: z.boolean().default(false).describe('Does this workout contain intervals?'),
+  IsIntervals: z.boolean().default(false).describe('true when steps share an IntervalId to form repeated blocks'),
   FTPMode: z.string().default('E_NoFTP').describe('FTP mode'),
   IsTT: z.boolean().default(false),
   IsTSS: z.boolean().default(false),
@@ -57,41 +57,25 @@ const workoutSchema = z.object({
 });
 
 export const method = 'uploadCustomWorkout';
-export const description = `Upload or update custom cycling workouts to MyWhoosh. 
+export const description = `Create a custom cycling workout in the user's MyWhoosh "My Workouts", or update one by sending its Id again. Returns {"status": true, "message": "Custom workout is being uploaded."}: the upload is asynchronous and this only means MyWhoosh accepted it.
 
-CREATING NEW WORKOUTS:
-- Use a new unique workout ID (timestamp or random large number)
-- Define all workout properties and steps
+HOW TO BUILD A WORKOUT
+- Power is a FRACTION OF THE USER'S FTP, not watts: 0.55 = 55% FTP, 1.0 = FTP, 1.2 = 120% FTP. To target X watts use X / FTP, with the FTP from getPlayerData (PlayerPersonalStruct.FtpPlayer). Example with FTP 270 W: 200 W = 0.7407 and 400 W = 1.4815.
+- Time is in seconds, per step and for the whole workout. The workout Time must equal the sum of the step Times and StepCount the number of steps. Steps run in order, with Id 1, 2, 3...
+- StepType: E_Normal = constant power (use Power); E_WarmUp and E_CoolDown = ramp from StartPower to EndPower (set Power to 0); E_FreeRide = no power target, with optional on-screen messages.
+- IntervalId groups the steps of one repeated block (same number); 0 means the step is not part of an interval. Set IsIntervals to true when the workout has intervals.
+- ERGMode: E_ON makes the trainer hold the target watts (ERG); E_OFF (default) leaves the resistance free. Use E_OFF for tests and free-ride blocks.
+- TSS, IF, KJ, Description and AuthorName are optional and can stay at 0 or empty.
 
-UPDATING EXISTING WORKOUTS:
-- Use the same workout ID as the existing workout
-- Include all workout properties (changed and unchanged)
-- Only modify the fields you want to update (e.g., Name, Description, WorkoutStepsArray)
-- Keep other fields the same as the original workout
+CREATE VS UPDATE
+- New workout: a new unique numeric Id (a millisecond timestamp works).
+- Update: the same Id and the complete workout, changed and unchanged fields.
+- To put it on the calendar afterwards call createTask with taskType E_Simple_Workout and taskTypeId = this Id.
 
-WORKOUT STRUCTURE:
-- Each workout consists of multiple steps (WorkoutStepsArray)
-- Steps are executed sequentially
-- Power values are FTP multipliers (0.55 = 55% FTP, 1.0 = 100% FTP, 1.2 = 120% FTP)
-- Time is in seconds
-
-STEP TYPES:
-- E_Normal: Steady power interval (use Power field)
-- E_WarmUp: Ramp up from StartPower to EndPower
-- E_CoolDown: Ramp down from StartPower to EndPower  
-- E_FreeRide: Free ride with optional message
-
-INTERVALS:
-- Group steps into intervals by setting the same IntervalId (e.g., 1, 2, 3)
-- Steps with IntervalId = 0 are not part of an interval
-- Intervals can repeat (e.g., 3x [5min @ 80% FTP, 3min @ 120% FTP])
-
-EXAMPLE WORKOUT:
-- 5min warmup @ 55% FTP (Id: 1, StepType: E_Normal, Power: 0.55, Time: 300)
-- 10min ramp 55% to 120% FTP (Id: 2, StepType: E_WarmUp, StartPower: 0.55, EndPower: 1.2, Time: 600)
-- 3x [5min @ 80%, 3min @ 120%] (IntervalId: 1 for all 6 steps)
-- 5min cooldown 120% to 55% (Id: 8, StepType: E_CoolDown, StartPower: 1.2, EndPower: 0.55, Time: 300)`;
-
+LIMITS AND KNOWN PROBLEMS
+- If MyWhoosh answers "You don't have enough credit!" the workout was NOT uploaded: ask the user to delete workouts manually in the MyWhoosh app, then retry.
+- MyWhoosh stores every workout uploaded this way with an invalid sportsModeType, so downloadCustomWorkoutsFromS3 and deleteCustomWorkout cannot read or delete it afterwards (known MyWhoosh backend bug, GitHub issue #1). The workout still appears and works in the app and can be deleted there. Do not upload it again to "fix" it: you would create a duplicate.
+- SportsModeType is mandatory for MyWhoosh and is sent for you as 0 (cycling).`;
 export const parameters = z.object({
   workouts: z.array(workoutSchema).describe('Array of workout definitions to upload'),
 });

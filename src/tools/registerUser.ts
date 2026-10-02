@@ -5,7 +5,10 @@ import { asMcpError, McpError } from './utils/toolHelpers.js';
 import { MyWhooshClient } from '../clients/mywhoosh.js';
 
 export const method = 'registerUser';
-export const description = 'Register a new MyWhoosh user account.';
+export const description = `Create a brand-new MyWhoosh account. It does not log in afterwards: use login with the same email and password. Only use it when the user explicitly asks to create an account. Does not need a session.
+
+Inputs: first and last name, email (also used as the username), password, date of birth (day, month, year), height in cm, weight in kg, gender (0 = male, 1 = female), country as MyWhoosh numeric code (default 0), ftp in watts (default 160) and whether marketing emails are allowed (default false).
+Returns MyWhoosh's registration response as JSON.`;
 export const parameters = z.object({
   firstName: z.string().describe('First name'),
   lastName: z.string().describe('Last name'),

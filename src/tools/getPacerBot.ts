@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getPacerBot';
-export const description = 'Get pacer bot configurations for group rides.';
+export const description = `Pacer bot groups for free-ride bunch rides: RunningData with GroupName, RouteId, Speed, minimum power and Pace.`;
 export const parameters = z.object({});
 
 export async function handler(

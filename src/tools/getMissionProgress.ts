@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getMissionProgress';
-export const description = 'Get mission challenge progress.';
+export const description = `Progress of the player in the current missions (mission challenges). Use getMissions for each mission's name and description.`;
 export const parameters = z.object({});
 
 export async function handler(

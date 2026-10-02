@@ -4,9 +4,9 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getEvents';
-export const description = 'Get list of upcoming and current events.';
+export const description = `List upcoming and current MyWhoosh events (races, time trials, group rides): ListOfEventData with, among other fields, EventId and description. Use an EventId as taskTypeId (taskType E_Event) in createTask to put an event on the calendar. sportsMode filters by sport and defaults to E_Cycling. Times are requested with a fixed +01:00 zone offset.`;
 export const parameters = z.object({
-  sportsMode: z.string().optional().default('E_Cycling').describe('Sports mode filter'),
+  sportsMode: z.string().optional().default('E_Cycling').describe('Sport to list events for, e.g. E_Cycling (default)'),
 });
 
 export async function handler(

@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getCoaches';
-export const description = 'Get list of available coaches.';
+export const description = `Coaches that publish MyWhoosh workouts and videos: data[] with Id, Name and ImageUrl. The CreatorId of getVOD entries matches these Ids.`;
 export const parameters = z.object({});
 
 export async function handler(

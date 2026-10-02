@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getRoutes';
-export const description = 'Get all available routes for free ride mode, organized by world.';
+export const description = `All routes available for free ride, grouped by world: for each world its WorldId and WorldName and Routes[] with Id, Name, Description and availability flags (bIsAvailableForFreeRide, bIsAvailableForEvents). Large response.`;
 export const parameters = z.object({});
 
 export async function handler(

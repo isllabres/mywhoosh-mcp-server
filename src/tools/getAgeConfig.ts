@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getAgeConfig';
-export const description = 'Get age-based feature access configuration.';
+export const description = `Which features the account may use according to its age category (chat, events, calendar, voice chat, season pass, missions, arcade mode, ...), as booleans such as bCanAccessCalendar.`;
 export const parameters = z.object({});
 
 export async function handler(

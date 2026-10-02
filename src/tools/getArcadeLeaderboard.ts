@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getArcadeLeaderboard';
-export const description = 'Get arcade mode leaderboard.';
+export const description = `Global arcade mode leaderboard: ListOfPlayers with Rank, PlayerName, Point, WattPerKg, RideDuration, DifficultyLevel and RideDate.`;
 export const parameters = z.object({});
 
 export async function handler(

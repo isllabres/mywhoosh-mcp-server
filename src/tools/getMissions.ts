@@ -4,7 +4,7 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getMissions';
-export const description = 'Get available missions and challenges.';
+export const description = `Missions currently available: Missions[] with MissionId, Name, Description, StartDate and EndDate (Unix seconds) and ChallengeIds. Use getMissionProgress for the player's own progress.`;
 export const parameters = z.object({});
 
 export async function handler(

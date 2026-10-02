@@ -4,9 +4,9 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'getSeasonPassProgress';
-export const description = 'Get season pass progress for a specific season.';
+export const description = `Progress of the logged-in player in one season pass. It needs the season UUID (seasonId) and this server has no dedicated tool to list season ids, so call it only when you already have one.`;
 export const parameters = z.object({
-  seasonId: z.string().describe('Season ID (UUID)'),
+  seasonId: z.string().describe('UUID of the season pass to query; you must already know it'),
 });
 
 export async function handler(
